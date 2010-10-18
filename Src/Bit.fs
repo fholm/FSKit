@@ -58,6 +58,3 @@ module Bit =
 
   let (~~~~) (d:double) =
     (double2bytes d |> bytes2ulong) |> (~~~) |> ulong2bytes |> bytes2double
-
-
-
