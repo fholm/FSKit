@@ -32,11 +32,32 @@ module Bit =
 
   let bytes2double (b:byte array) = System.BitConverter.ToDouble(b, 0)
   let bytes2float (b:byte array) = System.BitConverter.ToSingle(b, 0)
-  let bytes2int64 (b:byte array) = System.BitConverter.ToInt64(b, 0)
-  let bytes2uint64 (b:byte array) = System.BitConverter.ToUInt64(b, 0)
+  let bytes2long (b:byte array) = System.BitConverter.ToInt64(b, 0)
+  let bytes2ulong (b:byte array) = System.BitConverter.ToUInt64(b, 0)
   let bytes2int (b:byte array) = System.BitConverter.ToInt32(b, 0)
   let bytes2uint (b:byte array) = System.BitConverter.ToUInt32(b, 0)
   let bytes2short (b:byte array) = System.BitConverter.ToInt16(b, 0)
   let bytes2ushort (b:byte array) = System.BitConverter.ToUInt16(b, 0)
   let byte2bool (b:byte) = System.BitConverter.ToBoolean([|b|], 0)
   let byte2char (b:byte) = System.BitConverter.ToChar([|b|], 0)
+
+  let (<<<<) (d:double) (s:int32) =
+    (double2bytes d |> bytes2ulong) <<< s |> ulong2bytes |> bytes2double
+
+  let (>>>>) (d:double) (s:int32) =
+    (double2bytes d |> bytes2ulong) >>> s |> ulong2bytes |> bytes2double
+
+  let (||||) (d:double) (s:uint64) =
+    (double2bytes d |> bytes2ulong) ||| s |> ulong2bytes |> bytes2double
+
+  let (&&&&) (d:double) (s:uint64) =
+    (double2bytes d |> bytes2ulong) &&& s |> ulong2bytes |> bytes2double
+
+  let (^^^^) (d:double) (s:uint64) =
+    (double2bytes d |> bytes2ulong) ^^^ s |> ulong2bytes |> bytes2double
+
+  let (~~~~) (d:double) =
+    (double2bytes d |> bytes2ulong) |> (~~~) |> ulong2bytes |> bytes2double
+
+
+

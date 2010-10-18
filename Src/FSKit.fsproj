@@ -59,6 +59,7 @@
     <Compile Include="Bit.fs" />
     <Compile Include="Reflection.fs" />
     <Compile Include="Perf.fs" />
+    <Compile Include="Stream.fs" />
     <Compile Include="AssemblyInfo.fs" />
   </ItemGroup>
   <ItemGroup>
