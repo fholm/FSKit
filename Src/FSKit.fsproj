@@ -61,6 +61,7 @@
     <Compile Include="Perf.fs" />
     <Compile Include="Stream.fs" />
     <Compile Include="Seq.fs" />
+    <Compile Include="Ref.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
