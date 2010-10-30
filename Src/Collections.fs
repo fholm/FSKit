@@ -61,40 +61,76 @@ module Collections =
       | Empty -> 0
       | Node(_, _, h, _, _) -> h
 
+    let heightOf l r =
+      (max (height l) (height r)) + 1
+
     let balanceOf n =
       match n with
       | Empty -> 0
       | Node(_, _, _, l, r) -> (height l) - (height r)
 
-    let balance k v l r =
-      let lh = height l
-      let rh = height r
-      let h = (max lh rh) + 1
-      let b = lh - rh
-      let h = 
-        match lh - rh with
-        | -2 ->
+    let rotateLeft root =
+      match root with
+      | Node(rk, rv, rh, rl, Node(pk, pv, ph, pl, pr)) ->
+        let root = Node(rk, rv, heightOf rl pl, rl, pl)
+        Node(pk, pv, heightOf root pr, root, pr)
+      
+      | _ -> failwith "Can't rotate tree"
+
+    let rotateRight root =
+      match root with
+      | Node(rk, rv, rh, Node(pk, pv, ph, pl, pr), rr) ->
+        let root = Node(rk, rv, heightOf pr rr, pr, rr)
+        Node(pk, pv, heightOf root pl, pl, root)
+      | _ -> failwith "Can't rotate tree"
+
+    let balanceInsert k v l r =
+      let h = heightOf l r 
+      let n = Node(k, v, h, l, r)
+
+      match balanceOf n with
+      | -2 ->
+        let n = 
           match balanceOf r with
-          | 1 -> 1
-          | _ -> 2
+          | 1 -> Node(k, v, h, l, rotateRight r)
+          | _ -> n
 
-        | 2 ->
+        rotateLeft n
+
+      | 2 ->
+        let n = 
           match balanceOf l with
-          | -1 -> 3
-          | _ -> 4
+          | -1 -> Node(k, v, h, rotateLeft l, r)
+          | _ -> n
 
-        | _ -> Node(k, v, h, l, r)
+        rotateRight n
 
+      | _ -> n
 
     let rec insert key value (tree:Node<'k, 'v>) =
       match tree with
-      | Empty -> Node(key, value, 0, Empty, Empty)
+      | Empty -> Node(key, value, 1, Empty, Empty)
       | Node(k, v, h, l, r) -> 
         if key < k 
-          then balance k v (insert key value l) r
+          then balanceInsert k v (insert key value l) r
           elif key > k 
-            then balance k v l (insert key value r)
+            then balanceInsert k v l (insert key value r)
             else Node(key, value, h, l, r)
+
+  let mutable avl : AvlTree.Node<int, int> = AvlTree.empty
+  let mutable map : Map<int, int> = Map.empty
+
+  for i = 0 to 100000 do
+    avl <- AvlTree.insert i i avl  
+
+  for i = 0 to 100000 do
+    map <- Map.add i i map
+
+  for i = 0 to 100000 do
+    AvlTree.exists i avl
+
+  for i = 0 to 100000 do
+    Map.tryFind i map
 
   //----------------------------------------------------------------------------
   type CopyOnWriteArray<'a>(storage:'a array) =
