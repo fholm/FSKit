@@ -56,6 +56,46 @@ module Collections =
     let rec exists key (tree:Node<'k, 'v>) =
       tree |> find key |> Option.isSome
 
+    let height n =
+      match n with
+      | Empty -> 0
+      | Node(_, _, h, _, _) -> h
+
+    let balanceOf n =
+      match n with
+      | Empty -> 0
+      | Node(_, _, _, l, r) -> (height l) - (height r)
+
+    let balance k v l r =
+      let lh = height l
+      let rh = height r
+      let h = (max lh rh) + 1
+      let b = lh - rh
+      let h = 
+        match lh - rh with
+        | -2 ->
+          match balanceOf r with
+          | 1 -> 1
+          | _ -> 2
+
+        | 2 ->
+          match balanceOf l with
+          | -1 -> 3
+          | _ -> 4
+
+        | _ -> Node(k, v, h, l, r)
+
+
+    let rec insert key value (tree:Node<'k, 'v>) =
+      match tree with
+      | Empty -> Node(key, value, 0, Empty, Empty)
+      | Node(k, v, h, l, r) -> 
+        if key < k 
+          then balance k v (insert key value l) r
+          elif key > k 
+            then balance k v l (insert key value r)
+            else Node(key, value, h, l, r)
+
   //----------------------------------------------------------------------------
   type CopyOnWriteArray<'a>(storage:'a array) =
     member x.Length = storage.Length
