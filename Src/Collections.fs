@@ -39,14 +39,29 @@ module Collections =
   
     type Node<'k, 'v> when 'k : comparison
       = Empty
-      | Node of 'k * 'v * int * Node<'k, 'v> * Node<'k, 'v>
+      | Node of 'k * 'v * int * int * Node<'k, 'v> * Node<'k, 'v>
+        interface System.Collections.Generic.IEnumerable<'v> with
+          member x.GetEnumerator() =
+            let rec inOrder (tree:Node<'k, 'v>) =
+              seq {
+                match tree with
+                | Empty -> yield! Seq.empty
+                | Node(_, v, _, _, l, r) -> 
+                  yield! inOrder l; yield v; yield! inOrder r
+              }
+
+            (inOrder x).GetEnumerator()
+
+          member x.GetEnumerator() =
+            (x :> System.Collections.Generic.IEnumerable<'v>)
+              .GetEnumerator() :> System.Collections.IEnumerator
 
     let empty = Empty
 
     let rec find key (tree:Node<'k, 'v>) =
       match tree with
       | Empty -> None
-      | Node(k, v, _, l, r) ->
+      | Node(k, v, _, _, l, r) ->
         if key < k
           then find key l
           elif key > k
@@ -56,10 +71,18 @@ module Collections =
     let rec exists key (tree:Node<'k, 'v>) =
       tree |> find key |> Option.isSome
 
-    let height n =
-      match n with
+    let size (tree:Node<'k, 'v>) =
+      match tree with
       | Empty -> 0
-      | Node(_, _, h, _, _) -> h
+      | Node(_, _, s, _, _, _) -> s
+
+    let sizeOf l r = 
+      (size l) + (size r) + 1
+
+    let height (tree:Node<'k, 'v>)  =
+      match tree with
+      | Empty -> 0
+      | Node(_, _, _, h, _, _) -> h
 
     let heightOf l r =
       (max (height l) (height r)) + 1
@@ -67,32 +90,33 @@ module Collections =
     let balanceOf n =
       match n with
       | Empty -> 0
-      | Node(_, _, _, l, r) -> (height l) - (height r)
+      | Node(_, _, _, _, l, r) -> (height l) - (height r)
 
     let rotateLeft root =
       match root with
-      | Node(rk, rv, rh, rl, Node(pk, pv, ph, pl, pr)) ->
-        let root = Node(rk, rv, heightOf rl pl, rl, pl)
-        Node(pk, pv, heightOf root pr, root, pr)
+      | Node(rk, rv, _, rh, rl, Node(pk, pv, _, ph, pl, pr)) ->
+        let root = Node(rk, rv, sizeOf rl pl, heightOf rl pl, rl, pl)
+        Node(pk, pv, sizeOf root pr, heightOf root pr, root, pr)
       
       | _ -> failwith "Can't rotate tree"
 
     let rotateRight root =
       match root with
-      | Node(rk, rv, rh, Node(pk, pv, ph, pl, pr), rr) ->
-        let root = Node(rk, rv, heightOf pr rr, pr, rr)
-        Node(pk, pv, heightOf root pl, pl, root)
+      | Node(rk, rv, _, rh, Node(pk, pv, _, ph, pl, pr), rr) ->
+        let root = Node(rk, rv, sizeOf pr rr, heightOf pr rr, pr, rr)
+        Node(pk, pv, sizeOf root pl, heightOf root pl, pl, root)
       | _ -> failwith "Can't rotate tree"
 
     let balanceInsert k v l r =
       let h = heightOf l r 
-      let n = Node(k, v, h, l, r)
+      let s = sizeOf l r
+      let n = Node(k, v, s, h, l, r)
 
       match balanceOf n with
       | -2 ->
         let n = 
           match balanceOf r with
-          | 1 -> Node(k, v, h, l, rotateRight r)
+          | 1 -> Node(k, v, s, h, l, rotateRight r)
           | _ -> n
 
         rotateLeft n
@@ -100,7 +124,7 @@ module Collections =
       | 2 ->
         let n = 
           match balanceOf l with
-          | -1 -> Node(k, v, h, rotateLeft l, r)
+          | -1 -> Node(k, v, s, h, rotateLeft l, r)
           | _ -> n
 
         rotateRight n
@@ -109,28 +133,44 @@ module Collections =
 
     let rec insert key value (tree:Node<'k, 'v>) =
       match tree with
-      | Empty -> Node(key, value, 1, Empty, Empty)
-      | Node(k, v, h, l, r) -> 
+      | Empty -> Node(key, value, 1, 1, Empty, Empty)
+      | Node(k, v, s, h, l, r) -> 
         if key < k 
           then balanceInsert k v (insert key value l) r
           elif key > k 
             then balanceInsert k v l (insert key value r)
-            else Node(key, value, h, l, r)
+            else Node(key, value, s, h, l, r)
 
+    let rec preOrder (tree:Node<'k, 'v>) =
+      seq {
+        match tree with
+        | Empty -> yield! Seq.empty
+        | Node(_, v, _, _, l, r) ->
+          yield v; yield! preOrder l; yield! preOrder r
+      }
+
+    let rec postOrder (tree:Node<'k, 'v>) =
+      seq {
+        match tree with
+        | Empty -> yield! Seq.empty
+        | Node(_, v, _, _, l, r) ->
+          yield! postOrder l; yield! postOrder r; yield v
+      }
+
+    let rec index i (tree:Node<'k, 'v>) =
+      match tree with
+      | Empty -> failwithf "Index %i does not exist" i
+      | Node(_, v, s, _, l, r) ->
+        ()
+
+  (*
   let mutable avl : AvlTree.Node<int, int> = AvlTree.empty
-  let mutable map : Map<int, int> = Map.empty
 
-  for i = 0 to 100000 do
-    avl <- AvlTree.insert i i avl  
+  for i = 0 to 12 do
+    avl <- AvlTree.insert i i avl
 
-  for i = 0 to 100000 do
-    map <- Map.add i i map
-
-  for i = 0 to 100000 do
-    AvlTree.exists i avl
-
-  for i = 0 to 100000 do
-    Map.tryFind i map
+  avl |> Seq.map (fun x -> x)
+  *)
 
   //----------------------------------------------------------------------------
   type CopyOnWriteArray<'a>(storage:'a array) =
