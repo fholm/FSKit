@@ -7,6 +7,25 @@ open System.Collections.Generic
 module Collections =
 
   module AvlTree =
+    (*
+    //EXAMPLES
+
+    let avl =
+      ['a'..'z'] |> List.fold (fun avl char ->
+        AvlTree.insert char char avl
+      ) AvlTree.empty
+  
+    avl |> AvlTree.min // 'z'
+    avl |> AvlTree.max // 'a'
+    avl |> AvlTree.exists 'b' // true
+    avl |> AvlTree.find 'd' // Some 'd'
+    avl |> AvlTree.size // 26
+    avl |> AvlTree.value // 'p' (root node)
+
+    let avl2 = avl |> AvlTree.delete 'd' // 
+    avl2 |> AvlTree.exists 'd' // false
+    avl2 |> AvlTree.size // 25
+    *)
 
     open System.Collections
     open System.Collections.Generic
@@ -206,22 +225,6 @@ module Collections =
           node |> left |> queue.Enqueue 
           node |> right |> queue.Enqueue
       }
-
-  let avl =
-    ['a'..'z'] |> List.fold (fun avl char ->
-      AvlTree.insert char char avl
-    ) AvlTree.empty
-  
-  avl |> AvlTree.min // 'z'
-  avl |> AvlTree.max // 'a'
-  avl |> AvlTree.exists 'b' // true
-  avl |> AvlTree.find 'd' // Some 'd'
-  avl |> AvlTree.size // 26
-  avl |> AvlTree.value // 'p' (root node)
-
-  let avl2 = avl |> AvlTree.delete 'd' // 
-  avl2 |> AvlTree.exists 'd' // false
-  avl2 |> AvlTree.size // 25
 
   //----------------------------------------------------------------------------
   type CopyOnWriteArray<'a>(storage:'a array) =
