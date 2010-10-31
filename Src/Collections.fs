@@ -115,7 +115,9 @@ module Collections =
         match tree with
         | Empty -> Empty
         | Node(k, v, _, _, l, Empty) -> prevVal := Some(k, v); l
-        | Node(k, v, s, h, l, r) -> Node(k, v, s, h, l, prev prevVal r)
+        | Node(k, v, s, h, l, r) -> 
+          let r = prev prevVal r
+          Node(k, v, sizeOf l r, h, l, r)
         
       let prevVal = ref None
 
@@ -128,7 +130,9 @@ module Collections =
         match tree with
         | Empty -> Empty
         | Node(k, v, _, _, Empty, r) -> nextVal := Some(k, v); r
-        | Node(k, v, s, h, l, r) -> Node(k, v, s, h, next nextVal l, r)
+        | Node(k, v, s, h, l, r) -> 
+          let l = next nextVal l
+          Node(k, v, sizeOf l r, h, l, r)
 
       let nextVal = ref None
 
@@ -202,6 +206,22 @@ module Collections =
           node |> left |> queue.Enqueue 
           node |> right |> queue.Enqueue
       }
+
+  let avl =
+    ['a'..'z'] |> List.fold (fun avl char ->
+      AvlTree.insert char char avl
+    ) AvlTree.empty
+  
+  avl |> AvlTree.min // 'z'
+  avl |> AvlTree.max // 'a'
+  avl |> AvlTree.exists 'b' // true
+  avl |> AvlTree.find 'd' // Some 'd'
+  avl |> AvlTree.size // 26
+  avl |> AvlTree.value // 'p' (root node)
+
+  let avl2 = avl |> AvlTree.delete 'd' // 
+  avl2 |> AvlTree.exists 'd' // false
+  avl2 |> AvlTree.size // 25
 
   //----------------------------------------------------------------------------
   type CopyOnWriteArray<'a>(storage:'a array) =
