@@ -6,26 +6,52 @@ open System.Collections.Generic
 
 module Collections =
 
+  module Queue =
+
+    //  let q = 
+    //    List.fold (
+    //      fun queue item -> 
+    //        queue |> Queue.enqueue item) Queue.empty [1..10]
+    //  
+    //  let qSize = Queue.size q // 10
+    //  let first, q2 = q |> Queue.dequeue
+    //  let q2Size = Queue.size q2 // 9
+    
+    type Queue<'a> = Queue of 'a list * 'a list
+
+    let empty = Queue([], [])
+
+    let enqueue item queue =
+      match queue with
+      | Queue(front, back) -> 
+        Queue(front, item :: back)
+
+    let rec dequeue queue = 
+      match queue with
+      | Queue([], []) -> failwith "Empty queue"
+      | Queue([], back) -> Queue(back |> List.rev, []) |> dequeue
+      | Queue(front, back) -> front|> List.head, Queue(front|> List.tail, back)
+
+    let size = function
+      | Queue(front, back) -> front.Length + back.Length
+
   module AvlTree =
-    (*
-    //EXAMPLES
 
-    let avl =
-      ['a'..'z'] |> List.fold (fun avl char ->
-        AvlTree.insert char char avl
-      ) AvlTree.empty
-  
-    avl |> AvlTree.min // 'z'
-    avl |> AvlTree.max // 'a'
-    avl |> AvlTree.exists 'b' // true
-    avl |> AvlTree.find 'd' // Some 'd'
-    avl |> AvlTree.size // 26
-    avl |> AvlTree.value // 'p' (root node)
-
-    let avl2 = avl |> AvlTree.delete 'd' // 
-    avl2 |> AvlTree.exists 'd' // false
-    avl2 |> AvlTree.size // 25
-    *)
+    //  let avl =
+    //    ['a'..'z'] |> List.fold (fun avl char ->
+    //      AvlTree.insert char char avl
+    //    ) AvlTree.empty
+    //  
+    //  avl |> AvlTree.min // 'z'
+    //  avl |> AvlTree.max // 'a'
+    //  avl |> AvlTree.exists 'b' // true
+    //  avl |> AvlTree.find 'd' // Some 'd'
+    //  avl |> AvlTree.size // 26
+    //  avl |> AvlTree.value // 'p' (root node)
+    //  
+    //  let avl2 = avl |> AvlTree.delete 'd' // 
+    //  avl2 |> AvlTree.exists 'd' // false
+    //  avl2 |> AvlTree.size // 25
 
     open System.Collections
     open System.Collections.Generic
