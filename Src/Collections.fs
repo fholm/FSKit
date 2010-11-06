@@ -8,6 +8,7 @@ module Collections =
 
   module Queue =
 
+    (*
     //  let q = 
     //    List.fold (
     //      fun queue item -> 
@@ -16,6 +17,7 @@ module Collections =
     //  let qSize = Queue.size q // 10
     //  let first, q2 = q |> Queue.dequeue
     //  let q2Size = Queue.size q2 // 9
+    *)
     
     type Queue<'a> = Queue of 'a list * 'a list
 
@@ -35,8 +37,9 @@ module Collections =
     let size = function
       | Queue(front, back) -> front.Length + back.Length
 
-  module AvlTree =
+  module SortedMap =
 
+    (*
     //  let avl =
     //    ['a'..'z'] |> List.fold (fun avl char ->
     //      AvlTree.insert char char avl
@@ -52,6 +55,7 @@ module Collections =
     //  let avl2 = avl |> AvlTree.delete 'd' // 
     //  avl2 |> AvlTree.exists 'd' // false
     //  avl2 |> AvlTree.size // 25
+    *)
 
     open System.Collections
     open System.Collections.Generic

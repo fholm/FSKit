@@ -8,11 +8,11 @@ module Version =
 
   let [<Literal>] Major = 0
   let [<Literal>] Minor = 0
-  let [<Literal>] Build = 3
+  let [<Literal>] Build = 4
   let [<Literal>] Revision = 0
   let [<Literal>] Tag = "alpha"
-  let [<Literal>] String = "0.0.3.0"
-  let Tupled = (0, 0, 3, 0, Tag)
+  let [<Literal>] String = "0.0.4.0"
+  let Tupled = Major, Minor, Build, Revision, Tag
   let Tagged = sprintf "%s-%s" String Tag
   let FullName = sprintf "FSKit %s" String
  

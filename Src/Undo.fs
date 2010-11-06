@@ -2,6 +2,7 @@
 
 module Undo =
 
+  (*
   //  open Undo.Operators
   //  
   //  let str = "foo bar" |> Undo.init
@@ -9,6 +10,7 @@ module Undo =
   //  
   //  let modifiedValue = !!modified
   //  let undoValue = modified |> Undo.undo |> Undo.value
+  *)
     
   type History<'a> 
     = Empty
