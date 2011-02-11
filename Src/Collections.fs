@@ -6,6 +6,78 @@ open System.Collections.Generic
 
 module Collections =
 
+  module Mutable =
+    
+    module SparseArray =
+
+      [<AllowNullLiteral>] 
+      type Node<'a> =
+        
+        val mutable Index : uint32
+        val mutable Value : 'a
+        val mutable Left : Node<'a>
+        val mutable Right : Node<'a>
+        val mutable Height : sbyte
+
+        new(index, value) = {
+          Index = index
+          Value = value
+          Left = null
+          Right = null
+          Height = 0y
+        }
+
+        new(index, value, left, right, height) = {
+          Index = index
+          Value = value
+          Left = left
+          Right = right
+          Height = height
+        }
+        
+      [<AllowNullLiteral>] 
+      type Array<'a>(missingProvider:uint32 -> 'a) =
+
+        let stack = Array.zeroCreate<Node<'a>> 48
+        let mutable stackIndex = -1
+        let mutable root : Node<'a> = null
+        let mutable topIndex : uint32 = 0u
+
+        let rec findNode (current:Node<'a>) index =
+          match current with
+          | null -> false
+          | _ -> 
+            stackIndex <- stackIndex + 1
+            stack.[stackIndex] <- current
+            if index < current.Index
+              then findNode current.Left index
+              elif index > current.Index
+                then findNode current.Right index
+                else true
+
+        member x.Length = topIndex + 1u
+        member x.Root = root
+
+        member x.Set index value =
+          if findNode root index then
+            stack.[stackIndex].Value <- value
+
+          else
+            if stackIndex >= 0 then
+              let newNode = Node(index, value)
+              let parent = stack.[stackIndex]
+              if index < parent.Index then 
+                parent.Left <- newNode
+
+              else
+                parent.Right <- newNode
+                if index > topIndex then
+                  topIndex <- index
+
+            else
+              root <- Node(index, value)
+              topIndex <- 1u
+
   module Queue =
 
     (*
@@ -255,66 +327,3 @@ module Collections =
           node |> left |> queue.Enqueue 
           node |> right |> queue.Enqueue
       }
-
-  //----------------------------------------------------------------------------
-  type CopyOnWriteArray<'a>(storage:'a array) =
-    member x.Length = storage.Length
-    member x.Item index = storage.[index]
-    
-    new (size:int) = 
-      CopyOnWriteArray(Array.zeroCreate size)
-
-    member x.SetValue(index, value) =
-      let size = if index >= storage.Length then index+1 else storage.Length
-      let copy = Array.zeroCreate size
-      System.Array.Copy(storage, copy, storage.Length)
-      copy.[index] <- value
-      CopyOnWriteArray<'a> copy
-
-    member x.Tail =
-      if storage.Length = 0 then None
-      elif storage.Length = 1 then Some(CopyOnWriteArray<'a>(0))
-      else
-        let size = storage.Length - 1
-        let copy = Array.zeroCreate size
-        System.Array.Copy(storage, 1, copy, 0, size)
-        Some(CopyOnWriteArray<'a> copy)
-        
-    member x.Head = if storage.Length = 0 then None else Some storage.[0]
-    member x.Match = x.Head, x.Tail
-    member x.Append value = x.SetValue(storage.Length, value)
-    member x.Cons value =
-      let size = storage.Length + 1
-      let copy = Array.zeroCreate size
-      copy.[0] <- value
-      System.Array.Copy(storage, 0, copy, 1, storage.Length)
-      CopyOnWriteArray<'a> copy
-
-    interface System.Collections.Generic.IEnumerable<'a> with
-      member x.GetEnumerator() = storage.GetEnumerator()
-      member x.GetEnumerator() = 
-        (seq{for a in storage do yield a}).GetEnumerator()
-        
-  //----------------------------------------------------------------------------
-  module Operators = 
-
-    let (+<) value (array:CopyOnWriteArray<_>) = array.Cons value
-    let (>+) (array:CopyOnWriteArray<_>) value = array.Append value
-
-  //----------------------------------------------------------------------------
-  module Operations =
-
-    module CopyOnWriteArray =
-
-      let zeroCreate<'a> (size:int) = CopyOnWriteArray<'a> size
-      let length (array:CopyOnWriteArray<_>) = array.Length
-      let head (array:CopyOnWriteArray<_>) = array.Head
-      let tail (array:CopyOnWriteArray<_>) = array.Tail
-      let cons value (array:CopyOnWriteArray<_>) = array.Cons value
-      let append (array:CopyOnWriteArray<_>) value = array.Append value
-      let get index (array:CopyOnWriteArray<_>) = array.[index]
-      let set index value (array:CopyOnWriteArray<_>) = 
-        array.SetValue(index, value)
-
-      let (|Head|_|) (array:CopyOnWriteArray<_>) = array.Head
-      let (|Tail|_|) (array:CopyOnWriteArray<_>) = array.Tail
