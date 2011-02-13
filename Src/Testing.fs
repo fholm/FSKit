@@ -1,10 +1,8 @@
 ﻿namespace FSKit
 
-#if CLR2
-#else
-open Microsoft.VisualStudio.TestTools.UnitTesting
-
 module Testing =
+
+  open Microsoft.VisualStudio.TestTools.UnitTesting
 
   let createTesters init =
     let failed = ref 0
@@ -84,4 +82,3 @@ module Testing =
 
     let fail m = Assert.Fail m
     let inconclusive m = Assert.Inconclusive m
-#endif

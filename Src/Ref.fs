@@ -26,4 +26,3 @@ module Ref =
   let inline decrd i = i := !i - 1.0; !i
 
   let inline update f r = r := f !r
-

@@ -6,6 +6,9 @@ module Utils =
   let toTrue _ = true
   let toFalse _ = false
 
+  let print = printf "%s"
+  let printn = printfn "%s"
+
   let inline refEq (a:obj) (b:obj) = Object.ReferenceEquals(a, b)
   let inline refNotEq a b = refEq a b |> not
 
