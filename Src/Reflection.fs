@@ -135,3 +135,5 @@ module Reflection =
   let getParameter (mi:MethodInfo) (n:int) =
     let params' = mi.GetParameters()
     if n < params'.Length then Some params'.[n] else None
+
+  let inline typeHandle<'a> = typeof<'a>.TypeHandle.Value

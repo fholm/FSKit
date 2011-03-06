@@ -23,3 +23,6 @@ module Utils =
 
   let inline isVoid (t:Type) = refEq typeof<Void> t
   let inline isNaNOrInf (d:double) = Double.IsNaN d || Double.IsInfinity d
+
+  let inline isSameType a b = refEq a b
+  let inline isSameTypeT<'a, 'b> = isSameType typeof<'a> typeof<'b>

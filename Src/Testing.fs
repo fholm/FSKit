@@ -1,5 +1,7 @@
 ﻿namespace FSKit
 
+open System
+
 module Testing =
 
   open Microsoft.VisualStudio.TestTools.UnitTesting
@@ -28,17 +30,15 @@ module Testing =
       | ex -> 
         incr failed
 
-        let matches = 
-          let pattern = @":line (\d+)"
-          System.Text.RegularExpressions.Regex.Matches(ex.StackTrace, pattern)
+        let rec msg (ex:Exception) arrow =
+          if ex = null then
+            String.Empty
 
-        let line = 
-          match matches.Count with
-          | 0 -> "<unknown>" 
-          | 1 -> matches.[0].Groups.[1].Value
-          | _ -> matches.[1].Groups.[1].Value
-
-        printfn "%s: FAILED (%s) LINE: %s " name ex.Message line
+          else
+              (sprintf "   %s %s\n%s\n" arrow ex.Message ex.StackTrace) 
+            + (msg ex.InnerException (arrow + ">"))
+            
+        printfn "%s:\n%s" name (msg ex ">")
 
     test, clean, state, report
 
