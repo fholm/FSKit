@@ -26,3 +26,5 @@ module Utils =
 
   let inline isSameType a b = refEq a b
   let inline isSameTypeT<'a, 'b> = isSameType typeof<'a> typeof<'b>
+
+  let inline tryCast<'a> (o:obj) = if o :? 'a then Some(o :?> 'a) else None
